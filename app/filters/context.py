@@ -7,10 +7,7 @@ from openai import OpenAI
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def extract_context(transcription_path: str, model="gpt-4") -> dict:
-    with open(transcription_path, "r", encoding="utf-8") as file:
-        transcription = file.read()
-
+def get_context(transcription: str, model="gpt-4") -> str:
     prompt = textwrap.dedent(f"""
         Eres un asistente experto en análisis de videotutoriales.
 
@@ -43,38 +40,21 @@ def extract_context(transcription_path: str, model="gpt-4") -> dict:
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {
-                    "role": "system",
-                    "content": "Eres un asistente que analiza transcripciones de videotutoriales para extraer contexto estructurado."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
+                {"role": "system", "content": "Eres un asistente que analiza transcripciones de videotutoriales para extraer contexto estructurado."},
+                {"role": "user", "content": prompt}
             ],
             temperature=0.2
         )
 
         content = response.choices[0].message.content
-
         try:
-            context = json.loads(content)
+            return json.loads(content)
         except json.JSONDecodeError:
-            print("⚠️ JSON malformado. Intentando extraer solo las llaves...")
             start = content.find("{")
             end = content.rfind("}") + 1
             json_block = content[start:end]
-            context = json.loads(json_block)
-
-        with open("context.json", "w", encoding="utf-8") as f:
-            json.dump(context, f, indent=2, ensure_ascii=False)
-
-        print("✅ Contexto guardado en context.json")
-        return context
+            return json.loads(json_block)
 
     except Exception as e:
         print("❌ Error al llamar a la API:", e)
         return {}
-
-if __name__ == "__main__":
-    extract_context("transcription.txt")

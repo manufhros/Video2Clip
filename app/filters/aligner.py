@@ -1,12 +1,6 @@
 import json
 
-def align_blocks_to_segments(semantic_blocks_path, whisper_segments_path, output_path):
-    with open(semantic_blocks_path, "r", encoding="utf-8") as f:
-        semantic_blocks = json.load(f)
-    with open(whisper_segments_path, "r", encoding="utf-8") as f:
-        segments = json.load(f)
-
-    # Flatten segment texts for easy lookup
+def align_blocks_to_segments(semantic_blocks: dict, segments: list) -> dict:
     segment_idx = 0
     results = {}
 
@@ -39,10 +33,4 @@ def align_blocks_to_segments(semantic_blocks_path, whisper_segments_path, output
             "end": segments[last_idx]["end"] if last_idx is not None else None,
         }
 
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2, ensure_ascii=False)
-
-    print(f"✅ Bloques alineados y guardados en {output_path}")
-
-if __name__ == "__main__":
-    align_blocks_to_segments("semantic_blocks.json", "whisper_segments.json", "aligned_blocks.json")
+    return results
