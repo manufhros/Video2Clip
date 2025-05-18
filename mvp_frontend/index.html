@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video y Diálogo MVP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+
+        <main>
+            <section class="video-section">
+                <div class="video-placeholder" id="videoPlaceholder">
+                    <span class="drop-text">Arrastra y suelta un vídeo aquí o haz clic para seleccionar</span>
+                    <input type="file" id="videoUpload" accept="video/*" hidden>
+                    <img id="videoThumbnail" src="#" alt="Miniatura del vídeo" class="video-thumbnail hidden">
+                </div>
+                <video id="videoPlayer" controls class="hidden" width="100%"></video>
+            </section>
+
+            <div class="chat-input-container">
+                <input class="chat-input" type="text" placeholder="Ask anything" />
+                <button class="send-btn">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 V2C. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+[project]
+name = "v2c-mvp"
+version = "0.1.0"
+dependencies = [
+    "openai",
+    "faiss-cpu",
+    "tiktoken",
+    "python-dotenv",
+    "ffmpeg-python",
+    "numpy",
+]
+
+[build-system]
+requires = ["uv"]
+build-backend = "uv.build"

@@ -1,0 +1,275 @@
+:root {
+    --primary-color: #e0f2f7; /* Azul clarito */
+    --secondary-color: #ffffff; /* Blanco */
+    --text-color: #333;
+    --border-color: #b0c4de; /* Azul más suave para bordes */
+    --accent-color: #007bff; /* Azul más vibrante para acentos */
+    --disabled-color: #c0c0c0;
+    --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Alinea al inicio para ver el header bien */
+    min-height: 100vh;
+    padding-top: 20px; /* Espacio para que no se pegue al borde */
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: var(--secondary-color);
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    width: 90%;
+    max-width: 1000px;
+    overflow: hidden; /* Para que los bordes redondeados afecten a los hijos */
+    margin-bottom: 20px; /* Espacio al final */
+}
+
+header {
+    background-color: var(--accent-color);
+    color: var(--secondary-color);
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #0056b3;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+main {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.video-section, .dialog-section {
+    background-color: #f9f9f9; /* Un blanco ligeramente distinto para las secciones */
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.video-section h2, .dialog-section h2 {
+    margin-top: 0;
+    color: var(--accent-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.video-placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 9; /* Mantiene la proporción del video */
+    background-color: #e9ecef;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    text-align: center;
+    position: relative; /* Para posicionar la miniatura */
+    overflow: hidden; /* Para que la miniatura no se salga */
+}
+
+.video-placeholder:hover {
+    background-color: #dfe6ec;
+}
+
+.drop-text {
+    color: #555;
+    font-size: 1.1em;
+    padding: 20px;
+}
+
+.video-thumbnail {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cubre el área sin distorsionar */
+    border-radius: 6px; /* Hereda un poco el radio */
+}
+
+.hidden {
+    display: none !important;
+}
+
+.chat-container {
+    height: 250px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: var(--secondary-color);
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chat-message {
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 70%;
+    word-wrap: break-word;
+    font-size: 0.95em;
+}
+
+.user-message {
+    background-color: var(--accent-color);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 5px;
+}
+
+.llm-message {
+    background-color: #e9ecef;
+    color: var(--text-color);
+    align-self: flex-start;
+    border-bottom-left-radius: 5px;
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 10px;
+}
+
+#chatInput {
+    flex-grow: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    font-family: inherit;
+    font-size: 1em;
+    resize: none; /* Evita que el usuario redimensione el textarea */
+    min-height: 40px; /* Altura mínima */
+    box-sizing: border-box; /* Para que padding no afecte el tamaño total */
+}
+
+#chatInput:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+}
+
+#sendButton {
+    padding: 0 20px; /* Más padding horizontal */
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+    height: 44px; /* Alineado con el textarea */
+    align-self: flex-end; /* Para que se alinee bien con el textarea si este crece */
+}
+
+#sendButton:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+#sendButton:disabled {
+    background-color: var(--disabled-color);
+    cursor: not-allowed;
+}
+
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #d4eaf0; /* Un poco más oscuro que el fondo principal */
+    color: #555;
+    font-size: 0.9em;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    main {
+        flex-direction: column;
+    }
+
+    header h1 {
+        font-size: 1.5em;
+    }
+
+    .container {
+        width: 95%;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .chat-input-area {
+        flex-direction: column; /* Apila input y botón en móviles */
+    }
+
+    #sendButton {
+        width: 100%; /* Botón ocupa todo el ancho */
+        margin-top: 10px;
+    }
+
+    #chatInput {
+        min-height: 60px; /* Un poco más alto en móviles */
+    }
+}
+
+/* Estilos nuevos :) */
+
+.chat-input-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 40px auto;
+    background: #f6f6f6;
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 0 0 1px #e4e4e7;
+    display: flex;
+    align-items: center;
+    padding: 0 18px 0 18px;
+    height: 56px;
+    position: relative;
+  }
+  .chat-input {
+    border: none;
+    background: transparent;
+    flex: 1;
+    height: 48px;
+    font-size: 1.25rem;
+    outline: none;
+    padding-left: 0;
+    color: #212121;
+  }
+  .send-btn {
+    width: 40px;
+    height: 40px;
+    background: #111;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .send-btn:active {
+    background: #333;
+  }
+  .send-btn svg {
+    width: 22px;
+    height: 22px;
+    fill: #fff;
+    display: block;
+  }
