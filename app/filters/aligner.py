@@ -33,4 +33,6 @@ def align_blocks_to_segments(semantic_blocks: dict, segments: list) -> dict:
             "end": segments[last_idx]["end"] if last_idx is not None else None,
         }
 
+    print(json.dumps(results, indent=2, ensure_ascii=False))
+
     return results

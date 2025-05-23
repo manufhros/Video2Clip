@@ -7,6 +7,7 @@
         body { font-family: sans-serif; max-width: 600px; margin: 40px auto; background: #f4f4f4; }
         input, button, textarea { margin: 8px 0; font-size: 1em; }
         #respuesta { background: #fff; padding: 16px; min-height: 40px; border-radius: 8px; }
+        #videoResult { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -23,9 +24,11 @@
 
     <h3>Respuesta</h3>
     <div id="respuesta"></div>
+    <div id="videoResult"></div>
 
 <script>
 let lastVideoId = null;
+let lastUploadedFile = null; // Guardar el video subido en memoria
 
 document.getElementById('uploadBtn').onclick = async function() {
     const fileInput = document.getElementById('videoInput');
@@ -36,10 +39,10 @@ document.getElementById('uploadBtn').onclick = async function() {
         return;
     }
     const file = fileInput.files[0];
+    lastUploadedFile = file; // Guardar referencia
     const formData = new FormData();
     formData.append('file', file);
 
-    // NO CATCH: simplemente muestra todo el texto que llegue de backend
     const resp = await fetch('http://127.0.0.1:8000/upload', {
         method: 'POST',
         body: formData
@@ -51,11 +54,9 @@ document.getElementById('uploadBtn').onclick = async function() {
         data = await resp.text();
     }
 
-    // Muestra TODO el cuerpo de la respuesta, sea lo que sea
     let toShow = (typeof data === "object") ? JSON.stringify(data, null, 2) : data;
     uploadResult.textContent = toShow;
 
-    // Si contiene video_id, actualiza el input
     if (typeof data === "object" && data.video_id) {
         lastVideoId = data.video_id;
         document.getElementById('videoId').value = lastVideoId;
@@ -66,13 +67,15 @@ document.getElementById('askBtn').onclick = async function() {
     const videoId = document.getElementById('videoId').value.trim();
     const pregunta = document.getElementById('questionInput').value.trim();
     const respuestaDiv = document.getElementById('respuesta');
+    const videoResultDiv = document.getElementById('videoResult');
+    videoResultDiv.innerHTML = ""; // Limpiar video previo
+
     if (!videoId || !pregunta) {
         respuestaDiv.textContent = 'Introduce el ID del vídeo y una pregunta.';
         return;
     }
     respuestaDiv.textContent = 'Buscando respuesta...';
 
-    // NO CATCH: muestra todo lo que venga, sea JSON, texto, error...
     const resp = await fetch('http://127.0.0.1:8000/ask', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -91,6 +94,35 @@ document.getElementById('askBtn').onclick = async function() {
 
     let toShow = (typeof data === "object") ? JSON.stringify(data, null, 2) : data;
     respuestaDiv.textContent = toShow;
+
+    // Si hay resultados y existe start/end, muestra el vídeo cortado
+    if (typeof data === "object" && data.results && data.results.length > 0 && lastUploadedFile) {
+        const res = data.results[0];
+        if (res.start != null && res.end != null) {
+            // Crear un reproductor de vídeo que solo muestre ese fragmento
+            const videoUrl = URL.createObjectURL(lastUploadedFile);
+            videoResultDiv.innerHTML = `
+                <video id="segmentPlayer" width="100%" controls>
+                    <source src="${videoUrl}" type="${lastUploadedFile.type}">
+                    Tu navegador no soporta el elemento de vídeo.
+                </video>
+                <div style="margin-top:5px; font-size:0.95em;">
+                    <b>Fragmento:</b> desde <b>${res.start.toFixed(1)}s</b> hasta <b>${res.end.toFixed(1)}s</b>
+                </div>
+            `;
+            // Cuando se reproduzca el vídeo, buscar el intervalo adecuado
+            const player = document.getElementById('segmentPlayer');
+            player.currentTime = res.start;
+            player.ontimeupdate = () => {
+                if (player.currentTime > res.end) {
+                    player.pause();
+                }
+            };
+            player.onloadedmetadata = () => {
+                player.currentTime = res.start;
+            };
+        }
+    }
 };
 </script>
 </body>
