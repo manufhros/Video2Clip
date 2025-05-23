@@ -120,20 +120,20 @@ Response:
 	•	Segmentation quality depends on the LLM and the clarity of the transcript.
 	•	Only supports locally uploaded videos (not YouTube links).
 
-⸻
+---
 
 👨‍💻 Authors
 	•	Manuel Francisco Hidalgo Ros
 @manufhros
 	•	(Add more if collaborative)
 
-⸻
+---
 
 📝 License
 
 MIT License
 
-⸻
+---
 
 Contributions are welcome!
 Open issues or PRs for questions, improvements, or feedback.
