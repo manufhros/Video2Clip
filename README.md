@@ -16,6 +16,8 @@ V2C is an application that allows you to **upload a video**, automatically trans
 ---
 
 ## 🗂️ Project Structure
+
+```
 V2C/
 │
 ├── app/
@@ -33,9 +35,8 @@ V2C/
 │   ├── style.css
 ├── main.py        # API entrypoint (FastAPI)
 ├── videos/        # Uploaded videos
-├── chroma_db/     # Vector DB persistence
-├── static/        # Frontend (index.html, style.css, etc)
 └── README.md
+```
 
 ---
 
