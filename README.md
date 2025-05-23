@@ -26,8 +26,8 @@ V2C/
 │   │   ├── segmenter.py
 │   │   └── transcriber.py
 │   ├── pipeline.py
-|
-├── mvp_frontend
+│
+├── mvp_frontend/
 │   ├── index.html
 │   ├── script.js
 │   ├── style.css
