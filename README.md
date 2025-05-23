@@ -26,7 +26,11 @@ V2C/
 │   │   ├── segmenter.py
 │   │   └── transcriber.py
 │   ├── pipeline.py
-│
+|
+├── mvp_frontend
+│   ├── index.html
+│   ├── script.js
+│   ├── style.css
 ├── main.py        # API entrypoint (FastAPI)
 ├── videos/        # Uploaded videos
 ├── chroma_db/     # Vector DB persistence
