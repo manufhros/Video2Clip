@@ -8,122 +8,40 @@
         input, button, textarea { margin: 8px 0; font-size: 1em; }
         #respuesta { background: #fff; padding: 16px; min-height: 40px; border-radius: 8px; }
         #videoResult { margin-top: 20px; }
+        #downloadClipBtn {
+            display: none;
+            margin-top: 12px;
+            padding: 10px 18px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #downloadClipBtn:hover {
+            background: #0056b3;
+        }
     </style>
 </head>
 <body>
-    <h2>Subir vídeo</h2>
+    <h2>Upload video</h2>
     <input type="file" id="videoInput" accept="video/*"><br>
-    <button id="uploadBtn">Subir y procesar vídeo</button>
+    <button id="uploadBtn">Upload and process video</button>
     <div id="uploadResult"></div>
 
-    <h2>Pregunta sobre el vídeo</h2>
-    <input type="text" id="videoId" placeholder="ID de vídeo (auto)" style="width: 350px;">
+    <h2>Ask about video</h2>
+    <input type="text" id="videoId" placeholder="Video id (auto)" style="width: 350px;">
     <br>
-    <input type="text" id="questionInput" placeholder="Escribe tu pregunta..." style="width: 350px;">
-    <button id="askBtn">Preguntar</button>
+    <input type="text" id="questionInput" placeholder="Write your question..." style="width: 350px;">
+    <button id="askBtn">Ask</button>
 
-    <h3>Respuesta</h3>
+    <h3>Answer</h3>
     <div id="respuesta"></div>
     <div id="videoResult"></div>
+    <a id="downloadClipBtn" href="#" download>Download</a>
 
-<script>
-let lastVideoId = null;
-let lastUploadedFile = null; // Guardar el video subido en memoria
-
-document.getElementById('uploadBtn').onclick = async function() {
-    const fileInput = document.getElementById('videoInput');
-    const uploadResult = document.getElementById('uploadResult');
-    uploadResult.textContent = 'Procesando...';
-    if (!fileInput.files.length) {
-        uploadResult.textContent = 'Selecciona un archivo de vídeo.';
-        return;
-    }
-    const file = fileInput.files[0];
-    lastUploadedFile = file; // Guardar referencia
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const resp = await fetch('http://127.0.0.1:8000/upload', {
-        method: 'POST',
-        body: formData
-    });
-    let data;
-    try {
-        data = await resp.json();
-    } catch {
-        data = await resp.text();
-    }
-
-    let toShow = (typeof data === "object") ? JSON.stringify(data, null, 2) : data;
-    uploadResult.textContent = toShow;
-
-    if (typeof data === "object" && data.video_id) {
-        lastVideoId = data.video_id;
-        document.getElementById('videoId').value = lastVideoId;
-    }
-};
-
-document.getElementById('askBtn').onclick = async function() {
-    const videoId = document.getElementById('videoId').value.trim();
-    const pregunta = document.getElementById('questionInput').value.trim();
-    const respuestaDiv = document.getElementById('respuesta');
-    const videoResultDiv = document.getElementById('videoResult');
-    videoResultDiv.innerHTML = ""; // Limpiar video previo
-
-    if (!videoId || !pregunta) {
-        respuestaDiv.textContent = 'Introduce el ID del vídeo y una pregunta.';
-        return;
-    }
-    respuestaDiv.textContent = 'Buscando respuesta...';
-
-    const resp = await fetch('http://127.0.0.1:8000/ask', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            video_id: videoId,
-            question: pregunta,
-            top_k: 1
-        })
-    });
-    let data;
-    try {
-        data = await resp.json();
-    } catch {
-        data = await resp.text();
-    }
-
-    let toShow = (typeof data === "object") ? JSON.stringify(data, null, 2) : data;
-    respuestaDiv.textContent = toShow;
-
-    // Si hay resultados y existe start/end, muestra el vídeo cortado
-    if (typeof data === "object" && data.results && data.results.length > 0 && lastUploadedFile) {
-        const res = data.results[0];
-        if (res.start != null && res.end != null) {
-            // Crear un reproductor de vídeo que solo muestre ese fragmento
-            const videoUrl = URL.createObjectURL(lastUploadedFile);
-            videoResultDiv.innerHTML = `
-                <video id="segmentPlayer" width="100%" controls>
-                    <source src="${videoUrl}" type="${lastUploadedFile.type}">
-                    Tu navegador no soporta el elemento de vídeo.
-                </video>
-                <div style="margin-top:5px; font-size:0.95em;">
-                    <b>Fragmento:</b> desde <b>${res.start.toFixed(1)}s</b> hasta <b>${res.end.toFixed(1)}s</b>
-                </div>
-            `;
-            // Cuando se reproduzca el vídeo, buscar el intervalo adecuado
-            const player = document.getElementById('segmentPlayer');
-            player.currentTime = res.start;
-            player.ontimeupdate = () => {
-                if (player.currentTime > res.end) {
-                    player.pause();
-                }
-            };
-            player.onloadedmetadata = () => {
-                player.currentTime = res.start;
-            };
-        }
-    }
-};
-</script>
+    <script src="script.js"></script>
 </body>
 </html>

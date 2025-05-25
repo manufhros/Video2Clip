@@ -18,51 +18,49 @@ def segmenter(transcription: str, context: str, model="gpt-4") -> dict:
                 {
                     "role": "user",
                     "content": f"""
-                    A partir de la siguiente transcripción de un tutorial, tienes que dividir la transcripción en partes, sin dejar ninguna palabra fuera (es como hacer cortes en el texto original). Estos cortes deben de ser por temáticas, es decir, partes en las que se puede dividir un tutorial, por ejemplo: "Cambiar nombre", "Cambiar imagen", etc.
-                    Además, para este tutorial contamos con contexto de la herramienta que estamos usando, usa esta información para hacer más precisos los cortes. El contexto es el siguiente:
+                    Starting with the following tutorial transcript, you need to divide the transcript into sections, leaving no words out (it's like making cuts in the original text). These cuts should be thematically related, meaning sections into which a tutorial can be divided, for example: "Change Name," "Change Image," etc.
+                    Additionally, for this tutorial, we have context for the tool we're using. Use this information to make the cuts more precise. The context is as follows:
                     {context}
 
-                    **NO SE PUEDE OMITIR NINGUNA PALABRA.**  
-                    Cada palabra de la transcripción DEBE aparecer UNA SOLA VEZ en alguno de los bloques.  
-                    No puedes cambiar el orden de las palabras.  
-                    No puedes fusionar, eliminar ni modificar frases ni palabras.
+                    **NO WORDS MAY BE OMITTED.**
+                    Each word in the transcript MUST appear ONLY ONCE in one of the blocks.
+                    You may not change the order of the words.
+                    You may not merge, delete, or modify phrases or words.
 
-                    La suma de todos los textos de los bloques, en orden, debe ser EXACTAMENTE igual a la transcripción original.
+                    The sum of all the texts in the blocks, in order, must be EXACTLY the same as the original transcription.
 
-                    **Si omites, repites o reordenas una sola palabra, la segmentación es inválida.**
+                    **If you omit, repeat, or reorder a single word, the segmentation is invalid.**
 
-                    Si no puedes segmentar sin dejar palabras fuera, haz bloques más grandes, pero NUNCA elimines palabras.
+                    If you can't segment without leaving out words, make larger blocks, but NEVER delete words.
 
-
-                    Devuélveme el resultado en formato JSON con la siguiente estructura:
+                    Return the result in JSON format with the following structure:
 
                     {{
-                    "nombre de funcionalidad": [
-                        "texto perteneciente a la funcionalidad 1"
+                    "feature name": [
+                        "text belonging to feature 1"
                     ],
-                    "otra funcionalidad": [
-                        "texto perteneciente a la funcionalidad 2"
+                    "other feature": [
+                        "text belonging to feature 2"
                     ]
                     ...
                     }}
 
-                    Por ejemplo, para la transcripción:  
-                    'Abre el menú. Luego haz clic en opciones. Ahora cambia el nombre.'  
-                    Podrías segmentar:
+                    For example, for transcription:
+                    'Open the menu. Then click Options. Now change the name.'
+                    You could segment:
                     {{
-                    "Abrir menú": ["Abre el menú."],
-                    "Entrar en opciones": ["Luego haz clic en opciones."],
-                    "Cambiar nombre": ["Ahora cambia el nombre."]
+                    "Open Menu": ["Open the menu."],
+                    "Enter Options": ["Then click Options."],
+                    "Rename": ["Now change the name."]
                     }}
 
-                    Pero si no puedes segmentar bien sin omitir palabras, pon todo en un solo bloque, pero NUNCA omitas nada.
+                    But if you can't segment well without omitting words, put everything in a single block, but NEVER omit anything.
 
+                    Try to make the cuts so that each part is segmented well, and that one segment doesn't have different functionalities. To do this, use context to understand the different functionalities and separate them well.
+                    Don't include anything other than letters in feature names.
+                    Don't include any additional comments, just the output JSON.
 
-                    Intenta hacer los cortes de forma que segmente bien cada parte, y que un segmento no tenga distintas funcionalidades, para ello usa el contexto, para entender las distintas funcionalidades y separar bien.
-                    En los nombres de funcionalidad no incluyas nada que no sean letras.
-                    No incluyas ningún comentario adicional, solo el JSON de salida. 
-                    
-                    Aquí está la transcripción:
+                    Here's the transcription:
 
                     {transcription}
                     """

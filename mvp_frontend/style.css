@@ -1,9 +1,9 @@
 :root {
-    --primary-color: #e0f2f7; /* Azul clarito */
-    --secondary-color: #ffffff; /* Blanco */
+    --primary-color: #e0f2f7;
+    --secondary-color: #ffffff;
     --text-color: #333;
-    --border-color: #b0c4de; /* Azul más suave para bordes */
-    --accent-color: #007bff; /* Azul más vibrante para acentos */
+    --border-color: #b0c4de;
+    --accent-color: #007bff;
     --disabled-color: #c0c0c0;
     --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -16,9 +16,9 @@ body {
     color: var(--text-color);
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Alinea al inicio para ver el header bien */
+    align-items: flex-start;
     min-height: 100vh;
-    padding-top: 20px; /* Espacio para que no se pegue al borde */
+    padding-top: 20px;
     box-sizing: border-box;
 }
 
@@ -28,8 +28,8 @@ body {
     box-shadow: var(--box-shadow);
     width: 90%;
     max-width: 1000px;
-    overflow: hidden; /* Para que los bordes redondeados afecten a los hijos */
-    margin-bottom: 20px; /* Espacio al final */
+    overflow: hidden;
+    margin-bottom: 20px;
 }
 
 header {
@@ -53,7 +53,7 @@ main {
 }
 
 .video-section, .dialog-section {
-    background-color: #f9f9f9; /* Un blanco ligeramente distinto para las secciones */
+    background-color: #f9f9f9;
     padding: 20px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
@@ -70,7 +70,7 @@ main {
 
 .video-placeholder {
     width: 100%;
-    aspect-ratio: 16 / 9; /* Mantiene la proporción del video */
+    aspect-ratio: 16 / 9;
     background-color: #e9ecef;
     border: 2px dashed var(--border-color);
     border-radius: 8px;
@@ -79,8 +79,8 @@ main {
     align-items: center;
     cursor: pointer;
     text-align: center;
-    position: relative; /* Para posicionar la miniatura */
-    overflow: hidden; /* Para que la miniatura no se salga */
+    position: relative;
+    overflow: hidden;
 }
 
 .video-placeholder:hover {
@@ -99,8 +99,8 @@ main {
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Cubre el área sin distorsionar */
-    border-radius: 6px; /* Hereda un poco el radio */
+    object-fit: cover;
+    border-radius: 6px;
 }
 
 .hidden {
@@ -154,9 +154,9 @@ main {
     border: 1px solid var(--border-color);
     font-family: inherit;
     font-size: 1em;
-    resize: none; /* Evita que el usuario redimensione el textarea */
-    min-height: 40px; /* Altura mínima */
-    box-sizing: border-box; /* Para que padding no afecte el tamaño total */
+    resize: none;
+    min-height: 40px;
+    box-sizing: border-box;
 }
 
 #chatInput:disabled {
@@ -165,7 +165,7 @@ main {
 }
 
 #sendButton {
-    padding: 0 20px; /* Más padding horizontal */
+    padding: 0 20px;
     background-color: var(--accent-color);
     color: white;
     border: none;
@@ -173,8 +173,8 @@ main {
     cursor: pointer;
     font-size: 1em;
     transition: background-color 0.2s ease;
-    height: 44px; /* Alineado con el textarea */
-    align-self: flex-end; /* Para que se alinee bien con el textarea si este crece */
+    height: 44px; 
+    align-self: flex-end; 
 }
 
 #sendButton:hover:not(:disabled) {
@@ -189,13 +189,13 @@ main {
 footer {
     text-align: center;
     padding: 15px;
-    background-color: #d4eaf0; /* Un poco más oscuro que el fondo principal */
+    background-color: #d4eaf0;
     color: #555;
     font-size: 0.9em;
     border-top: 1px solid var(--border-color);
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
     main {
         flex-direction: column;
@@ -212,16 +212,16 @@ footer {
     }
 
     .chat-input-area {
-        flex-direction: column; /* Apila input y botón en móviles */
+        flex-direction: column;
     }
 
     #sendButton {
-        width: 100%; /* Botón ocupa todo el ancho */
+        width: 100%;
         margin-top: 10px;
     }
 
     #chatInput {
-        min-height: 60px; /* Un poco más alto en móviles */
+        min-height: 60px;
     }
 }
 

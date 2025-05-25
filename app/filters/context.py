@@ -9,17 +9,17 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def get_context(transcription: str, model="gpt-4") -> str:
     prompt = textwrap.dedent(f"""
-        Eres un asistente experto en análisis de videotutoriales.
+        You are an expert assistant in video tutorial analysis.
 
-        Se te proporcionará una transcripción completa de un videotutorial.
+        You will be provided with a full transcript of a video tutorial.
 
-        Tu tarea es analizar el contenido y extraer un resumen estructurado que describa el contexto general del tutorial. Devuelve el resultado en formato JSON con las siguientes propiedades:
+        Your task is to analyze the content and extract a structured summary that describes the overall context of the tutorial. The result is returned in JSON format with the following properties:
 
         {{
           "tool_name": string,
           "tool_type": string,
           "goal_summary": string,
-          "user_level": "principiante" | "intermedio" | "avanzado",
+          "user_level": "beginner" | "intermediate" | "advanced",
           "main_entities": [string],
           "common_actions": [string],
           "functional_blocks": [string],
@@ -28,11 +28,11 @@ def get_context(transcription: str, model="gpt-4") -> str:
           "language": string
         }}
                              
-        Para "tool_name" es posible que la transcripción no haya detectado bien el nombre, debes de intentar deducirlo a partir del contexto y de las herramientas conocidas que tienen un nombre parecido y permiten hacer lo que explica en la transcripción, por ejemplo "Toogle Docs" es claramente "Google Docs".
+        For "tool_name" it is possible that the transcription did not detect the name correctly, you should try to deduce it from the context and from known tools that have a similar name and allow you to do what is explained in the transcription, for example "Toogle Docs" is clearly "Google Docs".
 
-        Por favor, NO añadas explicaciones adicionales ni comentarios. Devuelve solo el objeto JSON.
+        Please DO NOT add additional explanations or comments. Returns only the JSON object.
 
-        Aquí está la transcripción:
+        Here is the transcript:
         {transcription}
     """)
 
@@ -40,7 +40,7 @@ def get_context(transcription: str, model="gpt-4") -> str:
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "Eres un asistente que analiza transcripciones de videotutoriales para extraer contexto estructurado."},
+                {"role": "system", "content": "You are an assistant who analyzes video tutorial transcripts to extract structured context."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.2
@@ -56,5 +56,5 @@ def get_context(transcription: str, model="gpt-4") -> str:
             return json.loads(json_block)
 
     except Exception as e:
-        print("❌ Error al llamar a la API:", e)
+        print("❌ Error while calling API:", e)
         return {}

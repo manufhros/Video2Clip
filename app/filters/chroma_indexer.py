@@ -6,7 +6,7 @@ from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Inicializa el cliente Chroma con persistencia en disco
+# Initialize ChromaDB client
 chroma_client = chromadb.Client(Settings(
     persist_directory="./chroma_db"
 ))
@@ -19,7 +19,7 @@ def get_or_create_collection(video_id):
     return chroma_client.get_or_create_collection(name=video_id)
 
 def safe_metadata(label, start, end):
-    # Asegura que ningún campo es None
+    
     if label is None:
         label = ""
     if start is None:
@@ -34,7 +34,7 @@ def safe_metadata(label, start, end):
 
 def index_blocks_in_collection(video_id, aligned_blocks):
     """
-    Indexa todos los bloques alineados de un vídeo en su colección (por video_id)
+    Indexes aligned blocks in the ChromaDB collection for the given video ID.
     """
     collection = get_or_create_collection(video_id)
     ids = []
@@ -63,7 +63,7 @@ def index_blocks_in_collection(video_id, aligned_blocks):
 
 def search_blocks_in_video(video_id, query, top_k=2):
     """
-    Busca bloques en la colección (vídeo) que sean relevantes para el query.
+    Searches for the most relevant blocks in the ChromaDB collection for the given video ID.
     """
     collection = get_or_create_collection(video_id)
     query_emb = get_embedding(query)

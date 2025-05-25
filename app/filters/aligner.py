@@ -4,13 +4,13 @@ def align_blocks_to_segments(semantic_blocks: dict, segments: list) -> dict:
     segment_idx = 0
     results = {}
 
-    # Recorrer cada bloque temático (en orden)
+    # Iterates through each semantic block
     for label, block_lines in semantic_blocks.items():
         block_text = " ".join(block_lines).strip()
         block_words = block_text.split()
         n_block_words = len(block_words)
         
-        # Encontrar el rango de segmentos que cubren el bloque
+        # Search for the segment that contains the first word of the block
         found_words = []
         first_idx = None
         last_idx = None
@@ -24,7 +24,7 @@ def align_blocks_to_segments(semantic_blocks: dict, segments: list) -> dict:
             last_idx = segment_idx
             segment_idx += 1
 
-        # Truncar extra palabras si hay un pequeño solapamiento final
+        # Truncate the found words to match the number of block words
         found_words = found_words[:n_block_words]
 
         results[label] = {

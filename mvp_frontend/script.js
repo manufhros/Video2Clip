@@ -1,191 +1,114 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const videoUpload = document.getElementById('videoUpload');
-    const videoPlaceholder = document.getElementById('videoPlaceholder');
-    const dropText = videoPlaceholder.querySelector('.drop-text');
-    const videoThumbnail = document.getElementById('videoThumbnail');
-    const chatInput = document.getElementById('chatInput'); // Usar id
-    const sendButton = document.getElementById('sendButton'); // Usar id
+let lastVideoId = null;
+let lastUploadedFile = null;
+let lastClipParams = null;
 
-    // Si no tienes un div con id="chatContainer", lo crea:
-    let chatContainer = document.getElementById('chatContainer');
-    if (!chatContainer) {
-        chatContainer = document.createElement('div');
-        chatContainer.id = 'chatContainer';
-        chatContainer.className = 'chat-container';
-        document.querySelector('main').appendChild(chatContainer);
+document.getElementById('uploadBtn').onclick = async function() {
+    const fileInput = document.getElementById('videoInput');
+    const uploadResult = document.getElementById('uploadResult');
+    uploadResult.textContent = 'Processing...';
+    document.getElementById('downloadClipBtn').style.display = "none";
+
+    if (!fileInput.files.length) {
+        uploadResult.textContent = 'Select a video file.';
+        return;
+    }
+    const file = fileInput.files[0];
+    lastUploadedFile = file;
+    lastClipParams = null;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const resp = await fetch('http://127.0.0.1:8000/upload', {
+        method: 'POST',
+        body: formData
+    });
+    let data;
+    try {
+        data = await resp.json();
+    } catch {
+        data = await resp.text();
     }
 
-    let videoFile = null;
-    let videoId = null; // Almacena el ID del vídeo tras subirlo
+    let toShow = (typeof data === "object") ? JSON.stringify(data, null, 2) : data;
+    uploadResult.textContent = toShow;
 
-    // --- Manejo de carga de vídeo ---
-    videoPlaceholder.addEventListener('click', () => {
-        videoUpload.click();
-    });
-
-    videoPlaceholder.addEventListener('dragover', (event) => {
-        event.preventDefault();
-        videoPlaceholder.style.borderColor = 'var(--accent-color)';
-        videoPlaceholder.style.backgroundColor = '#d1e7ff';
-    });
-
-    videoPlaceholder.addEventListener('dragleave', () => {
-        videoPlaceholder.style.borderColor = 'var(--border-color)';
-        videoPlaceholder.style.backgroundColor = '#e9ecef';
-    });
-
-    videoPlaceholder.addEventListener('drop', (event) => {
-        event.preventDefault();
-        videoPlaceholder.style.borderColor = 'var(--border-color)';
-        videoPlaceholder.style.backgroundColor = '#e9ecef';
-        const files = event.dataTransfer.files;
-        if (files.length > 0) {
-            const file = files[0];
-            if (file.type.startsWith('video/')) {
-                handleVideoFile(file);
-            }
-        }
-    });
-
-    videoUpload.addEventListener('change', (event) => {
-        const files = event.target.files;
-        if (files.length > 0) {
-            const file = files[0];
-            if (file.type.startsWith('video/')) {
-                handleVideoFile(file);
-            } else {
-                videoUpload.value = '';
-            }
-        }
-    });
-
-    function handleVideoFile(file) {
-        videoFile = file;
-        dropText.classList.add('hidden');
-        videoThumbnail.classList.remove('hidden');
-        generateVideoThumbnail(file, (thumbnailUrl) => {
-            videoThumbnail.src = thumbnailUrl;
-            videoThumbnail.onload = () => URL.revokeObjectURL(thumbnailUrl);
-            enableChat();
-        });
-        uploadVideoToBackend(file);
+    if (typeof data === "object" && data.video_id) {
+        lastVideoId = data.video_id;
+        document.getElementById('videoId').value = lastVideoId;
     }
+};
 
-    function generateVideoThumbnail(file, callback) {
-        const video = document.createElement('video');
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        video.addEventListener('loadeddata', () => {
-            const aspectRatio = video.videoWidth / video.videoHeight;
-            const thumbWidth = 320;
-            const thumbHeight = thumbWidth / aspectRatio;
-            canvas.width = thumbWidth;
-            canvas.height = thumbHeight;
-            video.currentTime = 1;
-        });
-        video.addEventListener('seeked', () => {
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            callback(canvas.toDataURL('image/jpeg'));
-            URL.revokeObjectURL(video.src);
-        });
-        video.src = URL.createObjectURL(file);
-        video.load();
+document.getElementById('askBtn').onclick = async function() {
+    const videoId = document.getElementById('videoId').value.trim();
+    const pregunta = document.getElementById('questionInput').value.trim();
+    const respuestaDiv = document.getElementById('respuesta');
+    const videoResultDiv = document.getElementById('videoResult');
+    const downloadClipBtn = document.getElementById('downloadClipBtn');
+    videoResultDiv.innerHTML = "";
+    downloadClipBtn.style.display = "none";
+
+    if (!videoId || !pregunta) {
+        respuestaDiv.textContent = 'Enter the video ID and a question.';
+        return;
     }
+    respuestaDiv.textContent = 'Buscando respuesta...';
 
-    function uploadVideoToBackend(file) {
-        addMessageToChat('⏳ Subiendo vídeo y procesando…', 'llm-message thinking');
-        const formData = new FormData();
-        formData.append('file', file);
-        fetch('http://127.0.0.1:8000/upload', {
-            method: 'POST',
-            body: formData
+    const resp = await fetch('http://127.0.0.1:8000/ask', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            video_id: videoId,
+            question: pregunta,
+            top_k: 1
         })
-        .then(async (response) => {
-            // SIEMPRE mostrar la respuesta completa
-            const data = await response.json();
-            videoId = data.video_id;
-            removeThinkingMessages();
-            addMessageToChat('✅ Respuesta JSON de /upload:', 'llm-message');
-            addMessageToChat(JSON.stringify(data, null, 2), 'llm-message');
-        });
-    }
-
-    function enableChat() {
-        chatInput.disabled = false;
-        sendButton.disabled = false;
-        chatInput.placeholder = "Vídeo cargado. Escribe tu mensaje...";
-    }
-
-    // --- Chat ---
-
-    sendButton.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            sendMessage();
-        }
     });
+    let data;
+    try {
+        data = await resp.json();
+    } catch {
+        data = await resp.text();
+    }
 
-    function sendMessage() {
-        const messageText = chatInput.value.trim();
-        if (messageText === '') return;
-        if (!videoId) {
-            addMessageToChat('Primero sube un vídeo antes de preguntar.', 'llm-message');
-            return;
+    let toShow = (typeof data === "object") ? JSON.stringify(data, null, 2) : data;
+    respuestaDiv.textContent = toShow;
+
+    if (typeof data === "object" && data.results && data.results.length > 0 && lastUploadedFile) {
+        const res = data.results[0];
+        if (res.start != null && res.end != null) {
+            const videoUrl = URL.createObjectURL(lastUploadedFile);
+            videoResultDiv.innerHTML = `
+                <video id="segmentPlayer" width="100%" controls>
+                    <source src="${videoUrl}" type="${lastUploadedFile.type}">
+                    Your browser does not support the video element.
+                </video>
+                <div style="margin-top:5px; font-size:0.95em;">
+                    <b>Fragmento:</b> desde <b>${res.start.toFixed(1)}s</b> hasta <b>${res.end.toFixed(1)}s</b>
+                </div>
+            `;
+            const player = document.getElementById('segmentPlayer');
+            player.currentTime = res.start;
+            player.ontimeupdate = () => {
+                if (player.currentTime > res.end) {
+                    player.pause();
+                }
+            };
+            player.onloadedmetadata = () => {
+                player.currentTime = res.start;
+            };
+
+            downloadClipBtn.style.display = "inline-block";
+            downloadClipBtn.onclick = function(e) {
+                e.preventDefault();
+
+                const start = res.start;
+                const end = res.end;
+
+                const url = `http://127.0.0.1:8000/download_clip?video_id=${encodeURIComponent(videoId)}&start=${start}&end=${end}`;
+                downloadClipBtn.href = url;
+                downloadClipBtn.setAttribute("download", `${videoId}_clip_${Math.floor(start)}_${Math.floor(end)}.mp4`);
+
+                window.open(url, "_blank");
+            };
         }
-
-        addMessageToChat(messageText, 'user-message');
-        chatInput.value = '';
-        chatInput.disabled = true;
-        sendButton.disabled = true;
-        addMessageToChat("Procesando tu petición...", 'llm-message thinking');
-
-        fetch('http://127.0.0.1:8000/ask', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                video_id: videoId,
-                question: messageText,
-                top_k: 1
-            })
-        })
-        .then(async (response) => {
-            removeThinkingMessages();
-            const data = await response.json();
-            addMessageToChat('✅ Respuesta JSON de /ask:', 'llm-message');
-            addMessageToChat(JSON.stringify(data, null, 2), 'llm-message');
-        })
-        .finally(() => {
-            chatInput.disabled = false;
-            sendButton.disabled = false;
-            chatInput.focus();
-        });
     }
-
-    function addMessageToChat(text, type) {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('chat-message', type);
-        messageElement.textContent = text;
-        chatContainer.appendChild(messageElement);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    function removeThinkingMessages() {
-        // Elimina todos los mensajes temporales tipo "thinking"
-        chatContainer.querySelectorAll('.thinking').forEach(el => el.remove());
-    }
-
-    // Altura automática para el input (opcional, si usas un textarea)
-    chatInput.addEventListener('input', () => {
-        chatInput.style.height = 'auto';
-        let newHeight = chatInput.scrollHeight;
-        const maxHeight = 150;
-        if (newHeight > maxHeight) {
-            newHeight = maxHeight;
-            chatInput.style.overflowY = 'auto';
-        } else {
-            chatInput.style.overflowY = 'hidden';
-        }
-        chatInput.style.height = `${newHeight}px`;
-    });
-});
+};
